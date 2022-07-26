@@ -1,2 +1,2 @@
-# Atari2600-HDL-core
-Atari 2600 core to run it over FPGA
+# MOS6507-HDL-core
+MOS 6507 core to run it over FPGA
