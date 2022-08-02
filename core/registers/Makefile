@@ -1,4 +1,3 @@
-COMPONENT=Index_Reg_XY
 FLAGS="--std=08"
 
 all: clean simulate 
