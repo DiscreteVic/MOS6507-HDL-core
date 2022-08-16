@@ -8,7 +8,7 @@ ENTITY Index_Reg_XY IS
 END Index_Reg_XY ;
 
 ARCHITECTURE LogicFunction OF Index_Reg_XY IS
-    signal intData : STD_LOGIC_VECTOR(7 downto 0);
+    signal intData : STD_LOGIC_VECTOR(7 downto 0) := "ZZZZZZZZ";
 BEGIN
     
     statesReg : PROCESS (ctrl, data)  

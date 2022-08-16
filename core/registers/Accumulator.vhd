@@ -10,7 +10,7 @@ END Accumulator ;
 
 ARCHITECTURE LogicFunction OF Accumulator IS
     -- Internal register
-    signal intData : STD_LOGIC_VECTOR(7 downto 0);
+    signal intData : STD_LOGIC_VECTOR(7 downto 0) := "ZZZZZZZZ";
 BEGIN
     
     statesReg : PROCESS (ctrl, dALU, data)  
