@@ -13,3 +13,4 @@ results:
 
 clean:
 	@ rm -rf *.ghw *.cf
+

@@ -1,4 +1,4 @@
-QUARTUS_DIR=/opt/intelFPGA_lite/21.1/quartus/bin
+QUARTUS_DIR=/opt/intelFPGA_lite/22.1std/quartus/bin
 
 all: synthesize fit assemble
 
