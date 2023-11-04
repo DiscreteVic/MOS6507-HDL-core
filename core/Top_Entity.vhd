@@ -31,14 +31,19 @@ ARCHITECTURE LogicFunction OF Top_Entity IS
 --            clk_out : OUT STD_LOGIC) ;
 --    END COMPONENT;
 
-    COMPONENT ledTest is
-		PORT ( 
-			testKey : IN STD_LOGIC ;
-			testLed : OUT STD_LOGIC );
+    COMPONENT sevSegCtrl is
+        PORT ( 
+            dig : IN STD_LOGIC_VECTOR(3 downto 0);
+            dot : IN STD_LOGIC;
+            leds : OUT STD_LOGIC_VECTOR(7 downto 0)) ;
     END COMPONENT;
-
+    
+    signal initialized_signal : STD_LOGIC_VECTOR(3 downto 0); -- Inicializar con '0'
+    signal dot : STD_LOGIC; -- Inicializar con '0'
 
 BEGIN
-	P1: ledTest port map (KEY(1),LEDR(0));
+    initialized_signal <= X"3";
+    dot <= '0';
+	P1: sevSegCtrl port map (initialized_signal,dot, HEX0);
  
 END LogicFunction ;
