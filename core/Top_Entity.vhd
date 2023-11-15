@@ -13,6 +13,7 @@ ENTITY Top_Entity IS
         VGA_B : OUT STD_LOGIC_VECTOR(3 downto 0) ;
         VGA_HS : OUT STD_LOGIC ;
         VGA_VS : OUT STD_LOGIC ;
+        SW : IN STD_LOGIC_VECTOR(9 downto 0) ;
         KEY : IN STD_LOGIC_VECTOR(1 downto 0) ;
         LEDR : OUT STD_LOGIC_VECTOR(9 downto 0);
         HEX0 : OUT STD_LOGIC_VECTOR(7 downto 0);
@@ -52,6 +53,15 @@ ARCHITECTURE LogicFunction OF Top_Entity IS
             oData : OUT STD_LOGIC_VECTOR(7 downto 0)) ;
     END COMPONENT;
 
+    COMPONENT gp_register is
+        PORT ( 
+            clk : IN STD_LOGIC;
+            op : IN STD_LOGIC_VECTOR(2 downto 0);
+            iData : IN STD_LOGIC_VECTOR(7 downto 0);
+            oData : OUT STD_LOGIC_VECTOR(7 downto 0)) ;
+    END COMPONENT;
+
+    
     COMPONENT generic_register is
         PORT ( 
             clk : IN STD_LOGIC;
@@ -80,6 +90,7 @@ ARCHITECTURE LogicFunction OF Top_Entity IS
 BEGIN
     clk_sys <= MAX10_CLK1_50;
     LEDR(0) <= not KEY(0);
+    LEDR(9 downto 7) <= SW(9 downto 7);
 
 	D0: sevSegCtrl port map (disp0,dot, HEX0);
 	D1: sevSegCtrl port map (disp1,dot, HEX1);
@@ -89,7 +100,7 @@ BEGIN
 	D5: sevSegCtrl port map (disp5,dot, HEX5);
 
 
-	X: generic_register port map (clk_sys, not KEY(0),  '0', constValue, byte0);
+	X: gp_register port map (not KEY(0), SW(9 downto 7), constValue, byte0);
 	--Y: generic_register port map (clk_sys, not KEY(0), '0',  constValue, byte1);
 	ACC: generic_register port map (clk_sys, not KEY(1), '0',  constValue, byte1);
     
