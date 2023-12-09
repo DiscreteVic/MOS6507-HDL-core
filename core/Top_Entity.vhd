@@ -53,24 +53,34 @@ ARCHITECTURE LogicFunction OF Top_Entity IS
             oData : OUT STD_LOGIC_VECTOR(7 downto 0)) ;
     END COMPONENT;
 
-    COMPONENT gp_register is
+    COMPONENT generic_register is
+        GENERIC(
+            N : STD_LOGIC_VECTOR(7 downto 0));
         PORT ( 
             clk : IN STD_LOGIC;
-            op : IN STD_LOGIC_VECTOR(2 downto 0);
-            iData : IN STD_LOGIC_VECTOR(7 downto 0);
-            oData : OUT STD_LOGIC_VECTOR(7 downto 0)) ;
+            rst : IN STD_LOGIC;
+            ld : IN STD_LOGIC;
+            en : IN STD_LOGIC;
+            dbg : OUT STD_LOGIC_VECTOR(7 downto 0);
+            data : INOUT STD_LOGIC_VECTOR(7 downto 0));
     END COMPONENT;
 
-    
-    COMPONENT generic_register is
+    COMPONENT prog_counter is
         PORT ( 
             clk : IN STD_LOGIC;
-            wr : IN STD_LOGIC;
-            rst : IN STD_LOGIC;
-            iData : IN STD_LOGIC_VECTOR(7 downto 0);
-            oData : OUT STD_LOGIC_VECTOR(7 downto 0)) ;
+            op : IN STD_LOGIC;
+            en : IN STD_LOGIC;
+            data : INOUT STD_LOGIC_VECTOR(15 downto 0));
     END COMPONENT;
     
+    COMPONENT instr_decode IS
+        PORT ( 
+            clk : IN STD_LOGIC;
+            dbg : OUT STD_LOGIC_VECTOR(7 downto 0);
+            ops : OUT STD_LOGIC_VECTOR(7 downto 0);
+            ens : OUT STD_LOGIC_VECTOR(7 downto 0));
+    END COMPONENT ;
+
     signal disp0 : STD_LOGIC_VECTOR(3 downto 0); 
     signal disp1 : STD_LOGIC_VECTOR(3 downto 0); 
     signal disp2 : STD_LOGIC_VECTOR(3 downto 0); 
@@ -82,15 +92,20 @@ ARCHITECTURE LogicFunction OF Top_Entity IS
     signal byte1 : STD_LOGIC_VECTOR(7 downto 0); 
     signal byte2 : STD_LOGIC_VECTOR(7 downto 0); 
 
+    signal pcVal : STD_LOGIC_VECTOR(7 downto 0) := x"00"; -- Inicializar con '0'
     
     signal constValue : STD_LOGIC_VECTOR(7 downto 0) := x"03"; -- Inicializar con '0'
     signal dot : STD_LOGIC; -- Inicializar con '0'
     signal clk_sys : STD_LOGIC; 
 
+    signal dataBus : STD_LOGIC_VECTOR(7 downto 0);
+
+    signal busLd : STD_LOGIC_VECTOR(7 downto 0);
+    signal busEn : STD_LOGIC_VECTOR(7 downto 0);
+
 BEGIN
-    clk_sys <= MAX10_CLK1_50;
-    LEDR(0) <= not KEY(0);
-    LEDR(9 downto 7) <= SW(9 downto 7);
+
+    PresA: Prescaler generic map (25) port map (MAX10_CLK1_50, clk_sys);
 
 	D0: sevSegCtrl port map (disp0,dot, HEX0);
 	D1: sevSegCtrl port map (disp1,dot, HEX1);
@@ -99,16 +114,26 @@ BEGIN
 	D4: sevSegCtrl port map (disp4,dot, HEX4);
 	D5: sevSegCtrl port map (disp5,dot, HEX5);
 
+    --PC: prog_counter port map (clk_sys, '0', '0', pcVal);
 
-	X: gp_register port map (not KEY(0), SW(9 downto 7), constValue, byte0);
+    ID: instr_decode port map (clk_sys, pcVal, busLd, busEn);
+
+	P: generic_register generic map (x"5A") port map (clk_sys, '0', busLd(0), busEn(0), open, dataBus);
+	X: generic_register generic map (x"00") port map (clk_sys, '0', busLd(1), busEn(1), byte0, dataBus);
+	Y: generic_register generic map (x"00") port map (clk_sys, '0', busLd(2), busEn(2), byte1, dataBus);
 	--Y: generic_register port map (clk_sys, not KEY(0), '0',  constValue, byte1);
-	ACC: generic_register port map (clk_sys, not KEY(1), '0',  constValue, byte1);
+	--ACC: generic_register port map (clk_sys, not KEY(1), '0',  constValue, byte1);
     
     -- ALU IFC          clk,    rst, op, carry, iData, accData, oData 
-	ALU0: alu port map (clk_sys, '0', '1' , '0', byte0, byte1, byte2);
+	--ALU0: alu port map (clk_sys, '0', '1' , '0', byte0, byte1, byte2);
 
+
+
+    byte2 <= pcVal(7 downto 0);
+
+
+    -- Displaying debug bytes
     dot <= '0';
-
     disp0 <= byte0(3 downto 0);
     disp1 <= byte0(7 downto 4);
     disp2 <= byte1(3 downto 0);
