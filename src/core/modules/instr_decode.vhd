@@ -33,21 +33,26 @@ BEGIN
                 ops <= x"00";
                 ens <= x"00";
                 dbg <= x"02";
-            -- X write Y reads
+            -- Y write ACC reads
                 when 3 => 
-                ens <= x"02";
+                -- enable Y
+                ens <= x"04";
                 dbg <= x"03";
                 when 4 => 
-                ops <= x"04";
+                -- load ACC
+                ops <= x"08";
                 dbg <= x"04";
+                -- clean
                 when 5 => 
                 ops <= x"00";
                 ens <= x"00";
                 dbg <= x"05";
-                when others => 
-                ops <= x"00";
-                ens <= x"00";
+            -- X shows alu ops
+                when 6 => 
+                ens <= x"12";
                 dbg <= x"06";
+                when others => 
+                dbg <= x"07";
             end case;
             step := step + 1;
         end if;
