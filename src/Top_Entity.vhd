@@ -1,6 +1,5 @@
 LIBRARY ieee ;
 USE ieee.std_logic_1164.all;
-use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 ENTITY Top_Entity IS
@@ -29,6 +28,10 @@ ARCHITECTURE LogicFunction OF Top_Entity IS
     COMPONENT top_core is
         PORT ( 
             clk_sys : IN STD_LOGIC;
+            addr_bus : INOUT STD_LOGIC_VECTOR(15 downto 0);
+            data_bus : INOUT STD_LOGIC_VECTOR(7 downto 0);
+            rw : OUT STD_LOGIC;
+            dbe : OUT STD_LOGIC;
             dbg : OUT STD_LOGIC_VECTOR(23 downto 0));
     END COMPONENT;
  
@@ -40,6 +43,16 @@ ARCHITECTURE LogicFunction OF Top_Entity IS
             leds : OUT STD_LOGIC_VECTOR(7 downto 0)) ;
     END COMPONENT;
 
+    COMPONENT memory is
+        generic(
+            SIZE_BYTES : INTEGER);
+        Port ( clk : in STD_LOGIC;
+               address : in STD_LOGIC_VECTOR (15 downto 0);
+               data : inout STD_LOGIC_VECTOR (7 downto 0);
+               rw : in STD_LOGIC;
+               dbe : in STD_LOGIC);
+    END COMPONENT;
+
     COMPONENT Prescaler is
        GENERIC(
             N : INTEGER);
@@ -47,6 +60,7 @@ ARCHITECTURE LogicFunction OF Top_Entity IS
             clk_in : IN STD_LOGIC;
             clk_out : OUT STD_LOGIC) ;
     END COMPONENT;
+
 
     signal disp0 : STD_LOGIC_VECTOR(3 downto 0); 
     signal disp1 : STD_LOGIC_VECTOR(3 downto 0); 
@@ -60,12 +74,19 @@ ARCHITECTURE LogicFunction OF Top_Entity IS
     signal dot : STD_LOGIC; -- Inicializar con '0'
     signal clk_sys : STD_LOGIC; 
 
+    signal addrbus : STD_LOGIC_VECTOR(15 downto 0);
+    signal databus : STD_LOGIC_VECTOR(7 downto 0);
+
+    signal rw : STD_LOGIC;
+    signal dbe : STD_LOGIC;
 
 BEGIN
 
     PresA: Prescaler generic map (25) port map (MAX10_CLK1_50, clk_sys);
 
-    core: top_core  port map (clk_sys, bytes);
+    core: top_core  port map (clk_sys, addrbus, databus, rw, dbe, bytes);
+
+    mem: memory  generic map (256) port map (clk_sys, addrbus, databus, rw, dbe);
 
 	D0: sevSegCtrl port map (disp0, dot, HEX0);
 	D1: sevSegCtrl port map (disp1, dot, HEX1);

@@ -1,11 +1,14 @@
 LIBRARY ieee ;
 USE ieee.std_logic_1164.all;
-use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 ENTITY top_core IS
     PORT (
         clk_sys : IN STD_LOGIC;
+        addr_bus : INOUT STD_LOGIC_VECTOR(15 downto 0);
+        data_bus : INOUT STD_LOGIC_VECTOR(7 downto 0);
+        rw : OUT STD_LOGIC;
+        dbe : OUT STD_LOGIC;
         dbg : OUT STD_LOGIC_VECTOR(23 downto 0));
 END top_core ;
 
